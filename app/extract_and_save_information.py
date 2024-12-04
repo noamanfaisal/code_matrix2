@@ -6,7 +6,7 @@ from code_matrix.app.models import Project, Module, File, Class, Import, Functio
 from sqlalchemy.orm import sessionmaker
 from code_matrix.database.info import engine
 import pickle
-
+web_path = 'web.5'
 def extract_file_details(file_path):
     """
     Extracts imports, classes, and functions from a Python file.
@@ -80,9 +80,10 @@ def get_code_files(folder_path, extensions=(".py")):
     
     return code_files_details
 
-def get_all_files_information(folder_path = "code/mk_source_code/web"):
+def get_all_files_information(folder_path = f"code/mk_source_code/{web_path}"):
 
     # Call the function
+    # import pdb;pdb.set_trace()
     code_and_extracted_information = get_code_files(folder_path)
     return code_and_extracted_information
 
@@ -128,29 +129,30 @@ def get_module_info(file_path, apps_root):
 
     return module_name, module_path
 
-def save_all_information(folder_path = "code/mk_source_code/web"):
+def save_all_information(folder_path = f"code/mk_source_code/{web_path}"):
 
     
-    # data = get_all_files_information()
+    data = get_all_files_information()
     # saving data to pickle for later use
     
-    
-    data = load_from_pickle("1.pickle")
+    save_to_pickle(data, f'{web_path}.pickle')
+    # data = load_from_pickle("1.pickle")
     # Create a database session
     SessionLocal = sessionmaker(bind=engine)
     session = SessionLocal()
     # Add a project
     
-    project = add_project(session, "Muslimkids", branch="web-production2")
+    project = add_project(session, "Muslimkids.Django5", branch="web-production2", 
+                          meta_data="django.5.codemod")
     for item in data:
         try:
             module_name, module_path = get_module_info(item['path'],                                        
-            'code/mk_source_code/web/apps')
+            f'code/mk_source_code/{web_path}/apps')
             # saving module
             
         except ValueError as ve:
             module_name = 'global_app'
-            module_path = 'code/mk_source_code/web'
+            module_path = f'code/mk_source_code/{web_path}'
         # adding module for that entry
         module = add_module(session, project.id, module_name, module_path)
         # print(item['path'])
@@ -163,8 +165,7 @@ def save_all_information(folder_path = "code/mk_source_code/web"):
         # # addin classes and functions
         add_classes_and_functions(session, code_file.id, item['classes'], item['functions'])
 
-
-def add_project(session: Session, project_name: str, branch: str, language: str = "Python"):
+def add_project(session: Session, project_name: str, branch: str,meta_data: str, language: str = "Python"):
     """
     Add a new project to the database.
 
@@ -179,7 +180,7 @@ def add_project(session: Session, project_name: str, branch: str, language: str 
     """
     project = session.query(Project).filter_by(name=project_name).first()
     if not project:
-        project = Project(name=project_name, branch=branch, language=language, meta_data="{}")
+        project = Project(name=project_name, branch=branch, language=language, meta_data=meta_data)
         session.add(project)
         session.commit()
     return project

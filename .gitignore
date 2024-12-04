@@ -163,3 +163,8 @@ cython_debug/
 #.idea/
 1.pickle
 database/project.db
+web.1.pickle
+web.2.1.pickle
+web.3.pickle
+web.4.pickle
+web.5.pickle

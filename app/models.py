@@ -43,7 +43,7 @@ class File(Base):
     path = Column(String, nullable=False)
     chroma_path = Column(String, nullable=True)
     module = relationship("Module", back_populates="files")
-    
+    codemod_status = Column(Text, nullable=True)  # New field to track codemod status
     # Relationships for classes, imports, and functions
     classes = relationship("Class", back_populates="file", cascade="all, delete-orphan")
     imports = relationship("Import", back_populates="file", cascade="all, delete-orphan")
